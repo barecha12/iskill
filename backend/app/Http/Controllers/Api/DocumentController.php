@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Document;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class DocumentController extends Controller
+{
+    private const ALLOWED_FILE_TYPES = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'image/png',
+        'image/jpeg',
+        'application/zip',
+        'application/x-zip-compressed',
+    ];
+
+    public function index(): JsonResponse
+    {
+        $documents = Document::query()
+            ->with('uploader.profile')
+            ->latest()
+            ->get();
+
+        return response()->json($documents);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => ['nullable', 'string', 'max:255'],
+            'file' => ['required', 'file', 'max:10240', 'mimetypes:' . implode(',', self::ALLOWED_FILE_TYPES)],
+        ]);
+
+        $file = $validated['file'];
+        $path = $file->store('documents', 'local');
+
+        $document = Document::create([
+            'uploaded_by' => $request->user()->id,
+            'title' => $validated['title'] ?: Str::beforeLast($file->getClientOriginalName(), '.'),
+            'file_path' => $path,
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+        ])->load('uploader.profile');
+
+        return response()->json($document, 201);
+    }
+
+    public function download(Document $document): StreamedResponse
+    {
+        abort_unless(Storage::disk('local')->exists($document->file_path), 404, 'File not found.');
+
+        return Storage::disk('local')->download($document->file_path, $document->original_name);
+    }
+
+    public function destroy(Request $request, Document $document): JsonResponse
+    {
+        abort_unless($document->uploaded_by === $request->user()->id || $request->user()->is_admin, 403, 'Unauthorized access.');
+
+        Storage::disk('local')->delete($document->file_path);
+        $document->delete();
+
+        return response()->json([
+            'message' => 'Document deleted.',
+        ]);
+    }
+}
