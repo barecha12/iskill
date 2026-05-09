@@ -6,8 +6,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://iskill-sigma.vercel.app'
-    ],
+    'https://iskill-ruby.vercel.app'
+],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
