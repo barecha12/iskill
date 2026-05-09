@@ -60,6 +60,7 @@ class DocumentController extends Controller
             'original_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getClientMimeType(),
             'size' => $file->getSize(),
+            'compliance_status' => 'under_review',
         ])->load('uploader.profile');
 
         return response()->json($document, 201);

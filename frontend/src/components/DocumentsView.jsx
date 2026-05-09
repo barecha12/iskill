@@ -96,13 +96,6 @@ export function DocumentsView({
                   <strong title={document.title || document.original_name}>
                     {document.title || document.original_name}
                   </strong>
-                  {isOwner && isRestricted && (
-                    <span className={`doc-status-text ${isFlagged ? 'flagged' : 'review'}`}>
-                      {isFlagged
-                        ? 'This document has been flagged by an admin and is hidden from others.'
-                        : 'This document is under admin review and is temporarily hidden from others.'}
-                    </span>
-                  )}
                 </div>
 
                 <div className="doc-card-actions">
@@ -181,18 +174,27 @@ export function DocumentsView({
               </div>
             </div>
 
-            <div className="glance-footer">
-              <button
-                className="primary-button full-width"
-                onClick={() => {
-                  handleDownload(`/documents/${viewingDocument.id}/download`, viewingDocument.original_name)
-                  setViewingDocument(null)
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                Download Asset
-              </button>
-            </div>
+              <div className="glance-footer">
+                {(() => {
+                  const isRestricted = ['flagged', 'under_review'].includes(viewingDocument.compliance_status)
+                  const canDownload = !isRestricted || currentUser.is_admin
+                  return (
+                    <button
+                      className="primary-button full-width"
+                      disabled={!canDownload}
+                      title={!canDownload ? 'Download unavailable while document is under review or flagged' : 'Download'}
+                      onClick={() => {
+                        if (!canDownload) return
+                        handleDownload(`/documents/${viewingDocument.id}/download`, viewingDocument.original_name)
+                        setViewingDocument(null)
+                      }}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                      {canDownload ? 'Download Asset' : 'Unavailable — Under Review'}
+                    </button>
+                  )
+                })()}
+              </div>
           </div>
         </div>
       )}
