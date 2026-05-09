@@ -13,6 +13,7 @@ class Announcement extends Model
     protected $fillable = [
         'user_id',
         'content',
+        'target_user_id',
     ];
 
     public function user(): BelongsTo

@@ -50,17 +50,44 @@ class AdminController extends Controller
     public function updateDocumentCompliance(Request $request, \App\Models\Document $document): JsonResponse
     {
         $request->validate(['status' => 'required|string|in:compliant,under_review,flagged']);
+
+        $previousStatus = $document->compliance_status;
         $document->update(['compliance_status' => $request->status]);
 
+        // Notify the document owner if the status changed to a restrictive state
+        if ($request->status !== $previousStatus && in_array($request->status, ['flagged', 'under_review'])) {
+            $statusLabel = $request->status === 'flagged' ? 'Flagged ⚑' : 'Under Review ⏳';
+            $message = $request->status === 'flagged'
+                ? "Your document \"{$document->title}\" has been flagged by an administrator and is no longer visible to other users. Please contact your administrator for details."
+                : "Your document \"{$document->title}\" has been placed under review. It will remain hidden from other users until the review is complete.";
+
+            \App\Models\Announcement::create([
+                'user_id'    => auth()->id(),
+                'content'    => "[{$statusLabel}] {$message}",
+                'target_user_id' => $document->uploaded_by,
+            ]);
+        }
+
         return response()->json([
-            'message' => "Document compliance status updated to {$request->status}.",
+            'message'  => "Document compliance status updated to {$request->status}.",
             'document' => $document->load('uploader.profile'),
         ]);
     }
 
     public function announcements(): JsonResponse
     {
-        $announcements = \App\Models\Announcement::with(['user.profile', 'readByUsers'])->latest()->get();
+        $userId = auth()->id();
+
+        $announcements = \App\Models\Announcement::with(['user.profile', 'readByUsers'])
+            ->where(function ($q) use ($userId) {
+                // Global announcements (no specific target)
+                $q->whereNull('target_user_id')
+                  // OR announcements targeted at this specific user
+                  ->orWhere('target_user_id', $userId);
+            })
+            ->latest()
+            ->get();
+
         return response()->json($announcements);
     }
 

@@ -22,12 +22,23 @@ class DocumentController extends Controller
         'application/x-zip-compressed',
     ];
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $documents = Document::query()
             ->with('uploader.profile')
             ->latest()
-            ->get();
+            ->get()
+            ->filter(function ($doc) use ($user) {
+                // Admins see everything
+                if ($user->is_admin) return true;
+                // Owner always sees their own documents (with status badge)
+                if ($doc->uploaded_by === $user->id) return true;
+                // Everyone else only sees compliant documents
+                return $doc->compliance_status === 'compliant' || $doc->compliance_status === null;
+            })
+            ->values();
 
         return response()->json($documents);
     }

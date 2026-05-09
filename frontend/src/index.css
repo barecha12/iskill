@@ -2800,3 +2800,60 @@ body {
   50% { left: 0%; }
   100% { left: 100%; }
 }
+
+/* Compliance Badge System */
+.document-card-minimal {
+  position: relative;
+}
+
+.doc-restricted {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  background: rgba(239, 68, 68, 0.03) !important;
+}
+
+.compliance-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.compliance-badge.flagged {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.compliance-badge.under-review {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.doc-status-text {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.doc-status-text.flagged {
+  color: #ef4444;
+}
+
+.doc-status-text.review {
+  color: #eab308;
+}
+
+.icon-action-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
