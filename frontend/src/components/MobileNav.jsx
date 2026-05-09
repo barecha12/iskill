@@ -43,7 +43,12 @@ export function MobileNav({
         </div>
 
         <nav className="sidebar-nav">
-          {navigationItems.map((item) => (
+          {navigationItems.filter(item => {
+            if (Boolean(currentUser?.is_admin)) {
+              return item.id === 'dashboard'
+            }
+            return true
+          }).map((item) => (
             <button
               key={item.id}
               type="button"
@@ -61,11 +66,36 @@ export function MobileNav({
               </div>
             </button>
           ))}
+          {Boolean(currentUser?.is_admin) && (
+            <button
+              type="button"
+              className={activeView === 'admin' ? 'nav-link active' : 'nav-link'}
+              onClick={() => {
+                startTransition(() => setActiveView('admin'))
+                onClose()
+              }}
+            >
+              <div className="nav-link-row">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span className="nav-link-label">Governance</span>
+              </div>
+            </button>
+          )}
         </nav>
 
         <div className="sidebar-user">
           <div className="sidebar-user-row">
-            <div className="avatar-circle">{getInitials(currentUser?.name)}</div>
+            <div className="avatar-circle">
+              {currentUser?.avatar ? (
+                <img 
+                  src={currentUser.avatar.startsWith('http') ? currentUser.avatar : `/storage/${currentUser.avatar}`} 
+                  alt="" 
+                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                getInitials(currentUser?.name)
+              )}
+            </div>
             <div className="user-info">
               <strong>{currentUser?.name}</strong>
               <span>{currentUser?.profile?.department ?? 'General'}</span>
