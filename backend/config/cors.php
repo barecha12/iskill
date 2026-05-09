@@ -1,13 +1,14 @@
 <?php
 
 return [
-      'paths' => ['api/*', 'register', 'login', 'logout', '*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-    'https://iskill-ruby.vercel.app'
-],
+        'https://iskill-ruby.vercel.app',
+        'http://localhost:5173',
+    ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],

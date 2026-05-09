@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
 import { getInitials } from '../utils/formatters'
+import { STORAGE_BASE_URL } from '../api/client'
 
 export function AdminConsoleView({ 
   adminUsers, loadAdminUsers, handleToggleAdmin, handleDeleteUser, 
@@ -81,7 +81,7 @@ export function AdminConsoleView({
                     <div className="user-profile-cell">
                       <div className="avatar-circle sm">
                         {user.avatar ? (
-                          <img src={`http://localhost:8000/storage/${user.avatar}`} alt="" />
+                          <img src={`${STORAGE_BASE_URL}/${user.avatar}`} alt="" />
                         ) : (
                           getInitials(user.name)
                         )}
@@ -178,7 +178,7 @@ export function AdminConsoleView({
                     </select>
                   </td>
                   <td>
-                    <button className="action-btn sm gold" onClick={() => window.open(`http://localhost:8000/storage/${doc.file_path}`, '_blank')}>
+                    <button className="action-btn sm gold" onClick={() => window.open(`${STORAGE_BASE_URL}/${doc.file_path}`, '_blank')}>
                       Inspect
                     </button>
                   </td>

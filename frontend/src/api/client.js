@@ -1,15 +1,18 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api'
+const rawBaseUrl = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api'
+export const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`
+export const STORAGE_BASE_URL = API_BASE_URL.replace(/\/api$/, '') + '/storage'
 export const TOKEN_KEY = 'iskill_token'
 
 export async function apiRequest(path, options = {}, authToken = '') {
   const headers = new Headers(options.headers ?? {})
 
+  headers.set('Accept', 'application/json')
+  
   if (authToken) {
     headers.set('Authorization', `Bearer ${authToken}`)
   }
 
   if (!(options.body instanceof FormData)) {
-    headers.set('Accept', 'application/json')
     if (options.body && !headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json')
     }
