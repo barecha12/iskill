@@ -115,7 +115,18 @@ function App() {
         />
 
         <StatusBanner status={status} />
-        {isBootstrapping ? <p className="status-banner success">Syncing workspace...</p> : null}
+        {isBootstrapping && (
+          <div className="splash-screen">
+            <div className="splash-content">
+              <div className="splash-logo">
+                <img src="/logo.svg" alt="logo" width="64" height="64" />
+              </div>
+              <h2>Iskill Workspace</h2>
+              <p>Synchronizing secure node protocols...</p>
+              <div className="splash-loader"></div>
+            </div>
+          </div>
+        )}
 
         <ConfirmModal
           isOpen={confirmation.isOpen}

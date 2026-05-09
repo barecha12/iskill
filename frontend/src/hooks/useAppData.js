@@ -124,7 +124,7 @@ export function useAppData() {
 
   async function handleGenerateReport(format = 'csv') {
     setStatus({ type: 'info', message: `Compiling ${format.toUpperCase()} intelligence report...` })
-    
+
     await new Promise(r => setTimeout(r, 1500))
 
     try {
@@ -148,9 +148,9 @@ export function useAppData() {
           ['"SECTION 2: COMPREHENSIVE ASSET AUDIT LOG"', '""', '""', '""', '""'],
           ['"ID"', '"Asset Title"', '"Original Filename"', '"Uploaded By (Owner)"', '"Timestamp"'],
           ...documents.slice(0, 100).map(d => [
-            `"${d.id}"`, 
-            `"${(d.title || 'Untitled').replace(/"/g, '""')}"`, 
-            `"${(d.original_name || 'unknown').replace(/"/g, '""')}"`, 
+            `"${d.id}"`,
+            `"${(d.title || 'Untitled').replace(/"/g, '""')}"`,
+            `"${(d.original_name || 'unknown').replace(/"/g, '""')}"`,
             `"${(d.uploader?.name || 'System Auto').replace(/"/g, '""')}"`,
             `"${d.created_at}"`
           ]),
@@ -281,7 +281,7 @@ export function useAppData() {
 
       window.localStorage.setItem(TOKEN_KEY, response.token)
       setToken(response.token)
-      
+
       const userData = response.user.user || response.user
       setCurrentUser(userData)
       setStats(response.user.stats || null)
@@ -601,9 +601,9 @@ export function useAppData() {
       timestamp: a.created_at,
       read: a.read_by_users?.some(u => u.id === currentUser?.id) || false
     })),
-    ...conversations.flatMap(c => 
-      (c.last_message && c.last_message.sender?.is_admin && c.unread_count > 0) 
-      ? [{
+    ...conversations.flatMap(c =>
+      (c.last_message && c.last_message.sender?.is_admin && c.unread_count > 0)
+        ? [{
           id: `msg-${c.id}`,
           type: 'message',
           content: c.last_message?.content || 'New Directive',
@@ -611,7 +611,7 @@ export function useAppData() {
           timestamp: c.last_message?.created_at,
           userId: c.user?.id
         }]
-      : []
+        : []
     )
   ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
