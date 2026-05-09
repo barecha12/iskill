@@ -26,7 +26,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/documents', [DocumentController::class, 'index']);
     Route::post('/documents', [DocumentController::class, 'store']);
-    Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
+    Route::get('/documents/{document}/download', function (\Illuminate\Http\Request $request, \App\Models\Document $document) {
+        if ($request->has('token')) {
+            $request->headers->set('Authorization', 'Bearer ' . $request->query('token'));
+        }
+        return app(DocumentController::class)->download($request, $document);
+    })->middleware('auth:sanctum');
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
 
     Route::get('/announcements', [\App\Http\Controllers\Api\AdminController::class, 'announcements']);

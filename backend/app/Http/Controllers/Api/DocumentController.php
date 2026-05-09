@@ -54,9 +54,17 @@ class DocumentController extends Controller
         return response()->json($document, 201);
     }
 
-    public function download(Document $document): StreamedResponse
+    public function download(Request $request, Document $document): StreamedResponse
     {
-        abort_unless(Storage::disk('local')->exists($document->file_path), 404, 'File not found.');
+        // Allow token in query string for browser downloads/inspection
+        if ($request->has('token')) {
+            $request->headers->set('Authorization', 'Bearer ' . $request->query('token'));
+        }
+
+        // Check if file exists on disk
+        if (!Storage::disk('local')->exists($document->file_path)) {
+            abort(404, 'The physical file was not found on the server. It may have been deleted during a deployment.');
+        }
 
         return Storage::disk('local')->download($document->file_path, $document->original_name);
     }
