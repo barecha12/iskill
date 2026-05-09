@@ -38,7 +38,7 @@ export function Sidebar({
       <nav className="sidebar-nav">
         {navigationItems.filter(item => {
           // If user is admin, only show Dashboard and hide standard collaboration tools
-          if (currentUser?.is_admin) {
+          if (Boolean(currentUser?.is_admin)) {
             return item.id === 'dashboard'
           }
           return true
@@ -57,7 +57,7 @@ export function Sidebar({
             </div>
           </button>
         ))}
-        {currentUser?.is_admin && (
+        {Boolean(currentUser?.is_admin) && (
           <button
             type="button"
             className={activeView === 'admin' ? 'nav-link active' : 'nav-link'}

@@ -314,6 +314,22 @@ export function DashboardView({
           from { opacity: 0; transform: translateY(-20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @media (max-width: 768px) {
+          .personal-insights-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .personal-main-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .personal-welcome-section {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 16px;
+          }
+          .personal-welcome-section div:last-child {
+            text-align: left !important;
+          }
+        }
       `}</style>
     </section>
   )

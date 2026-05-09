@@ -260,6 +260,23 @@ export function AdminConsoleView({
           .status-pill.gold-fill { background: var(--primary); color: #000; }
           .status-pill.ghost { border: 1px solid rgba(255,255,255,0.1); color: #64748b; }
           .self-tag { font-size: 11px; color: var(--primary); font-style: italic; font-weight: 600; }
+
+          @media (max-width: 768px) {
+            .admin-registry-table-wrap {
+              overflow-x: auto;
+              margin: 0 -16px;
+              padding: 0 16px;
+            }
+            .admin-registry-table {
+              min-width: 600px;
+            }
+            .personal-insights-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .personal-main-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
         `}
       </style>
     </section>
