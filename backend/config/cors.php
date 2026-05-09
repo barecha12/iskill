@@ -1,9 +1,13 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+      'paths' => ['api/*', 'register', 'login', 'logout', '*'],
+
     'allowed_methods' => ['*'],
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:5173')],
+
+    'allowed_origins' => [
+        'https://iskill-sigma.vercel.app'
+    ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
