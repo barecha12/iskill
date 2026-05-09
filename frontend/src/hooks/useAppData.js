@@ -525,28 +525,30 @@ export function useAppData() {
   }
 
   async function handleUpdateUserCompliance(userId, status) {
+    const numericId = Number(userId)
     try {
-      const response = await apiRequest(`/admin/users/${userId}/compliance`, {
+      const response = await apiRequest(`/admin/users/${numericId}/compliance`, {
         method: 'POST',
         body: JSON.stringify({ status })
       }, token)
       setStatus({ type: 'success', message: response.message })
-      setAdminUsers(prev => prev.map(u => u.id === userId ? response.user : u))
-      setUsers(prev => prev.map(u => u.id === userId ? response.user : u))
+      setAdminUsers(prev => prev.map(u => Number(u.id) === numericId ? { ...u, compliance_status: status } : u))
+      setUsers(prev => prev.map(u => Number(u.id) === numericId ? { ...u, compliance_status: status } : u))
     } catch (error) {
       setStatus({ type: 'error', message: error.message })
     }
   }
 
   async function handleUpdateDocumentCompliance(docId, status) {
+    const numericId = Number(docId)
     try {
-      const response = await apiRequest(`/admin/documents/${docId}/compliance`, {
+      const response = await apiRequest(`/admin/documents/${numericId}/compliance`, {
         method: 'POST',
         body: JSON.stringify({ status })
       }, token)
       setStatus({ type: 'success', message: response.message })
-      setAdminDocuments(prev => prev.map(d => d.id === docId ? response.document : d))
-      setDocuments(prev => prev.map(d => d.id === docId ? response.document : d))
+      setAdminDocuments(prev => prev.map(d => Number(d.id) === numericId ? { ...d, compliance_status: status } : d))
+      setDocuments(prev => prev.map(d => Number(d.id) === numericId ? { ...d, compliance_status: status } : d))
     } catch (error) {
       setStatus({ type: 'error', message: error.message })
     }
