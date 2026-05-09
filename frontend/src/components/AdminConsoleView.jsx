@@ -83,7 +83,7 @@ export function AdminConsoleView({
                     <div className="user-profile-cell">
                       <div className="avatar-circle sm">
                         {user.avatar ? (
-                          <img src={`${STORAGE_BASE_URL}/${user.avatar}`} alt="" />
+                          <img src={user.avatar.startsWith('http') ? user.avatar : `${STORAGE_BASE_URL}/${user.avatar}`} alt="" />
                         ) : (
                           getInitials(user.name)
                         )}

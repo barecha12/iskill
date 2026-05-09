@@ -11,7 +11,11 @@ export function useAppData() {
   const [conversations, setConversations] = useState([])
   const [documents, setDocuments] = useState([])
   const [messages, setMessages] = useState([])
-  const [activeView, setActiveView] = useState('dashboard')
+  const [activeView, setActiveView] = useState(() => window.localStorage.getItem('iskill_view') ?? 'dashboard')
+
+  useEffect(() => {
+    window.localStorage.setItem('iskill_view', activeView)
+  }, [activeView])
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [isBootstrapping, setIsBootstrapping] = useState(Boolean(token))
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
@@ -325,6 +329,10 @@ export function useAppData() {
     setDocuments([])
     setMessages([])
     setSelectedUserId(null)
+    setLoginForm({ email: '', password: '' })
+    setRegisterForm({ name: '', email: '', password: '', password_confirmation: '', title: '', department: '' })
+    window.localStorage.removeItem('iskill_view')
+    setActiveView('dashboard')
   }
 
   async function handleSendMessage(event) {
