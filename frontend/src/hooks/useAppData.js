@@ -425,6 +425,18 @@ export function useAppData() {
     }
   }
 
+  async function handleInspect(path, fileName) {
+    setStatus({ type: 'info', message: `Retrieving ${fileName} for security inspection...` })
+    try {
+      const response = await apiRequest(path, {}, token)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message })
+    }
+  }
+
   async function handleUpdateProfile(profileData) {
     setStatus({ type: 'info', message: 'Syncing profile changes...' })
     try {
@@ -607,7 +619,7 @@ export function useAppData() {
     documentSearch, setDocumentSearch, conversationSearch, setConversationSearch, peopleSearch, setPeopleSearch,
     status, setStatus, confirmation, handleCancelConfirmation, messageFileInputRef, documentFileInputRef,
     selectedUser, filteredDocuments, filteredConversations, filteredPeople,
-    handleLogin, handleRegister, handleLogout, handleSendMessage, handleDocumentUpload, handleDeleteDocument, handleDownload,
+    handleLogin, handleRegister, handleLogout, handleSendMessage, handleDocumentUpload, handleDeleteDocument, handleDownload, handleInspect,
     handleRefresh, handleGenerateReport,
     handleUpdateProfile, handleUpdatePassword,
     stats, recentActivity,

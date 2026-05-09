@@ -5,6 +5,7 @@ import { STORAGE_BASE_URL } from '../api/client'
 export function AdminConsoleView({ 
   adminUsers, loadAdminUsers, handleToggleAdmin, handleDeleteUser, 
   adminDocuments, loadAdminDocuments, handleUpdateUserCompliance, handleUpdateDocumentCompliance,
+  handleInspect,
   currentUser 
 }) {
   const [activeTab, setActiveTab] = useState('personnel')
@@ -179,7 +180,7 @@ export function AdminConsoleView({
                     </select>
                   </td>
                   <td>
-                    <button className="action-btn sm gold" onClick={() => window.open(`${STORAGE_BASE_URL}/${doc.file_path}`, '_blank')}>
+                    <button className="action-btn sm gold" onClick={() => handleInspect(`/documents/${doc.id}/download`, doc.original_name)}>
                       Inspect
                     </button>
                   </td>

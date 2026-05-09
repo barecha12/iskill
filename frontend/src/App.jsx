@@ -29,7 +29,7 @@ function App() {
     documentSearch, setDocumentSearch, conversationSearch, setConversationSearch, peopleSearch, setPeopleSearch,
     status, setStatus, confirmation, handleCancelConfirmation, messageFileInputRef, documentFileInputRef,
     selectedUser, filteredDocuments, filteredConversations, filteredPeople,
-    handleLogin, handleRegister, handleLogout, handleSendMessage, handleDocumentUpload, handleDeleteDocument, handleDownload,
+    handleLogin, handleRegister, handleLogout, handleSendMessage, handleDocumentUpload, handleDeleteDocument, handleDownload, handleInspect,
     handleRefresh, handleGenerateReport,
     handleUpdateProfile, handleUpdatePassword,
     stats, recentActivity,
@@ -197,6 +197,7 @@ function App() {
             loadAdminDocuments={loadAdminDocuments}
             handleUpdateUserCompliance={handleUpdateUserCompliance}
             handleUpdateDocumentCompliance={handleUpdateDocumentCompliance}
+            handleInspect={handleInspect}
             currentUser={currentUser} 
           />
         )}
