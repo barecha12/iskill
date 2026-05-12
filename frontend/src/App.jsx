@@ -36,11 +36,7 @@ function App() {
     startTransition
   } = useAppData()
 
-  React.useEffect(() => {
-    if (token) {
-      loadAnnouncements()
-    }
-  }, [token])
+
 
   if (!token) {
     return (
@@ -54,6 +50,7 @@ function App() {
         setRegisterForm={setRegisterForm}
         handleRegister={handleRegister}
         status={status}
+        setStatus={setStatus}
       />
     )
   }
@@ -62,18 +59,36 @@ function App() {
     activeView === 'dashboard'
       ? 'Workspace Dashboard'
       : activeView === 'chat'
-        ? 'Direct conversations'
+        ? 'Direct Conversations'
         : activeView === 'documents'
-          ? 'Shared documents'
+          ? 'Shared Documents'
           : activeView === 'admin'
             ? 'Governance Console'
-            : 'People directory'
+            : activeView === 'profile'
+              ? 'My Profile'
+              : 'People Directory'
 
   const teamCount = users.filter((user) => user.id !== currentUser?.id).length
   const unreadCount = conversations.reduce(
     (count, conversation) => count + (conversation.unread_count ?? 0),
     0,
   )
+
+  // Show full-page splash while syncing — nothing else renders
+  if (isBootstrapping) {
+    return (
+      <div className="splash-screen">
+        <div className="splash-content">
+          <div className="splash-logo">
+            <img src="/logo.svg" alt="logo" width="64" height="64" />
+          </div>
+          <h2>Iskill Workspace</h2>
+          <p>Synchronizing secure node protocols...</p>
+          <div className="splash-loader"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="workspace-shell">
@@ -114,19 +129,8 @@ function App() {
           handleMarkAnnouncementRead={handleMarkAnnouncementRead}
         />
 
+
         <StatusBanner status={status} />
-        {isBootstrapping && (
-          <div className="splash-screen">
-            <div className="splash-content">
-              <div className="splash-logo">
-                <img src="/logo.svg" alt="logo" width="64" height="64" />
-              </div>
-              <h2>Iskill Workspace</h2>
-              <p>Synchronizing secure node protocols...</p>
-              <div className="splash-loader"></div>
-            </div>
-          </div>
-        )}
 
         <ConfirmModal
           isOpen={confirmation.isOpen}

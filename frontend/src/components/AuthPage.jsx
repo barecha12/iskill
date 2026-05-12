@@ -33,6 +33,7 @@ export function AuthPage(props) {
             setLoginForm={props.setLoginForm}
             handleLogin={props.handleLogin}
             status={props.status}
+            setStatus={props.setStatus}
           />
           <div className="mobile-switch-text">
             Don't have an account? <span style={{ color: '#6366f1', fontWeight: 600, cursor: 'pointer' }} onClick={handleSignUpClick}>Create one</span>
@@ -42,13 +43,35 @@ export function AuthPage(props) {
         <div className="overlay-container">
           <div className="overlay">
             <div className="overlay-panel overlay-left">
-              <h1 style={{ fontWeight: 800, margin: 0 }}>Welcome Back!</h1>
-              <p style={{ margin: '20px 0', fontSize: '14px', lineHeight: 1.6 }}>To keep connected with us please login with your personal info</p>
+              <div className="auth-brand-mark">
+                <img src="/logo.svg" alt="ISkill logo" className="auth-brand-logo" />
+              </div>
+              <p className="auth-panel-eyebrow">ISkill Workspace</p>
+              <h1 style={{ fontWeight: 800, margin: 0 }}>Welcome Back</h1>
+              <p style={{ margin: '20px 0 8px', fontSize: '14px', lineHeight: 1.6 }}>
+                Sign in to continue your secure collaboration, review shared files, and stay in sync with your team.
+              </p>
+              <p className="auth-panel-supporting-copy">Your conversations, documents, and profile updates stay connected in one place.</p>
               <button className="auth-ghost-button" id="signIn" onClick={handleSignInClick}>Sign In</button>
             </div>
             <div className="overlay-panel overlay-right">
-              <h1 style={{ fontWeight: 800, margin: 0 }}>Hello, Friend!</h1>
-              <p style={{ margin: '20px 0', fontSize: '14px', lineHeight: 1.6 }}>Enter your personal details and start journey with us</p>
+              <div className="auth-brand-lockup">
+                <div className="auth-brand-mark">
+                  <img src="/logo.svg" alt="ISkill logo" className="auth-brand-logo" />
+                </div>
+                <div>
+                  <p className="auth-panel-eyebrow">ISkill</p>
+                  <h2 className="auth-brand-title">Build a more connected team workspace</h2>
+                </div>
+              </div>
+              <p style={{ margin: '20px 0 8px', fontSize: '14px', lineHeight: 1.7 }}>
+                Bring people, documents, and direct communication into one secure hub built for faster teamwork.
+              </p>
+              <div className="auth-value-list">
+                <div className="auth-value-item"><span className="auth-value-icon" aria-hidden="true"></span><span>Centralize conversations and files without losing context.</span></div>
+                <div className="auth-value-item"><span className="auth-value-icon" aria-hidden="true"></span><span>Give every teammate a clear profile, role, and workspace presence.</span></div>
+                <div className="auth-value-item"><span className="auth-value-icon" aria-hidden="true"></span><span>Start in minutes with a clean onboarding flow for new members.</span></div>
+              </div>
               <button className="auth-ghost-button" id="signUp" onClick={handleSignUpClick}>Sign Up</button>
             </div>
           </div>

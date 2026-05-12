@@ -90,20 +90,22 @@ export function useAppData() {
   async function bootstrapApp(authToken) {
     setIsBootstrapping(true)
     try {
-      const [me, allUsers, allConversations, allDocuments] = await Promise.all([
+      const [me, allUsers, allConversations, allDocuments, announcementList] = await Promise.all([
         apiRequest('/me', {}, authToken),
-        apiRequest('/users', {}, authToken),
-        apiRequest('/conversations', {}, authToken),
-        apiRequest('/documents', {}, authToken),
+        apiRequest('/users', {}, authToken).catch(() => []),
+        apiRequest('/conversations', {}, authToken).catch(() => []),
+        apiRequest('/documents', {}, authToken).catch(() => []),
+        apiRequest('/announcements', {}, authToken).catch(() => []),
       ])
 
       const userData = me.user || me
       setCurrentUser(userData)
       setStats(me.stats || null)
       setRecentActivity(me.recent_activity || [])
-      setUsers(allUsers)
-      setConversations(allConversations)
-      setDocuments(allDocuments)
+      setUsers(allUsers || [])
+      setConversations(allConversations || [])
+      setDocuments(allDocuments || [])
+      setAnnouncements(announcementList || [])
 
       startTransition(() => {
         setSelectedUserId((currentId) => currentId ?? allConversations[0]?.user.id ?? allUsers.find((user) => user.id !== me.id)?.id ?? null)
@@ -280,6 +282,8 @@ export function useAppData() {
       }, '')
 
       window.localStorage.setItem(TOKEN_KEY, response.token)
+      window.localStorage.setItem('iskill_view', 'dashboard')
+      setActiveView('dashboard')
       setToken(response.token)
 
       const userData = response.user.user || response.user

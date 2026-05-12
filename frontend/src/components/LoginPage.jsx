@@ -1,7 +1,7 @@
 import React from 'react'
 import { StatusBanner } from './StatusBanner'
 
-export function LoginForm({ loginForm, setLoginForm, handleLogin, status }) {
+export function LoginForm({ loginForm, setLoginForm, handleLogin, status, setStatus }) {
   const [buttonOffset, setButtonOffset] = React.useState({ x: 0, y: 0 })
   
   const isFormValid = loginForm.email.includes('@') && loginForm.password.length >= 6
@@ -17,6 +17,56 @@ export function LoginForm({ loginForm, setLoginForm, handleLogin, status }) {
   }
 
   const styles = {
+    card: {
+      width: '100%',
+      maxWidth: '360px',
+      margin: '0 auto',
+    },
+
+    brandLockup: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      marginBottom: '36px',
+      justifyContent: 'flex-start',
+    },
+
+    brandMark: {
+      width: '44px',
+      height: '44px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    brandLogo: {
+      width: '36px',
+      height: '36px',
+      objectFit: 'contain',
+      display: 'block',
+    },
+
+    brandText: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      lineHeight: 1.1,
+    },
+
+    brandLabel: {
+      fontSize: '11px',
+      fontWeight: 700,
+      textTransform: 'uppercase',
+      letterSpacing: '0.14em',
+      color: '#f5d56b',
+    },
+
+    brandName: {
+      fontSize: '20px',
+      fontWeight: 800,
+      color: '#fff',
+    },
+
     form: {
       display: 'flex',
       flexDirection: 'column',
@@ -29,13 +79,13 @@ export function LoginForm({ loginForm, setLoginForm, handleLogin, status }) {
       fontWeight: 800,
       color: '#fff',
       margin: '0 0 10px',
-      textAlign: 'center',
+      textAlign: 'left',
     },
 
     subtitle: {
       fontSize: '14px',
       color: '#94a3b8',
-      textAlign: 'center',
+      textAlign: 'left',
       marginBottom: '30px',
     },
 
@@ -53,12 +103,13 @@ export function LoginForm({ loginForm, setLoginForm, handleLogin, status }) {
       width: '100%',
       padding: '14px 16px',
       borderRadius: '12px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      background: 'rgba(255, 255, 255, 0.05)',
+      border: '1px solid rgba(255, 255, 255, 0.14)',
+      background: 'rgba(255, 255, 255, 0.07)',
       color: '#fff',
       outline: 'none',
       fontSize: '15px',
       boxSizing: 'border-box',
+      boxShadow: 'inset 0 0 0 1px transparent',
     },
 
     button: {
@@ -66,25 +117,58 @@ export function LoginForm({ loginForm, setLoginForm, handleLogin, status }) {
       padding: '16px',
       borderRadius: '12px',
       border: 'none',
-      background: isFormValid ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'rgba(255,255,255,0.1)',
-      color: isFormValid ? 'white' : 'rgba(255,255,255,0.3)',
-      fontWeight: 700,
+      background: isFormValid ? 'linear-gradient(135deg, #f5d56b, #d4a63a 55%, #9a6518)' : 'rgba(255,255,255,0.1)',
+      color: isFormValid ? '#111827' : 'rgba(255,255,255,0.3)',
+      fontWeight: 800,
       cursor: isFormValid ? 'pointer' : 'not-allowed',
       transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
       transform: `translate(${buttonOffset.x}px, ${buttonOffset.y}px)`,
       fontSize: '14px',
       textTransform: 'uppercase',
       letterSpacing: '1px',
+      boxShadow: isFormValid ? '0 16px 30px rgba(212, 175, 55, 0.28)' : 'none',
     },
 
     inputGroup: {
       display: 'flex',
       flexDirection: 'column',
-    }
+    },
+
+    formMetaRow: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginTop: '-8px',
+    },
+
+    forgotButton: {
+      background: 'transparent',
+      border: 'none',
+      color: '#f5d56b',
+      fontSize: '13px',
+      fontWeight: 600,
+      padding: 0,
+      cursor: 'pointer',
+    },
+  }
+
+  const handleForgotPassword = () => {
+    setStatus?.({
+      type: 'info',
+      message: 'Password reset is not live yet. Please contact your workspace administrator for credential assistance.',
+    })
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: '320px', margin: '0 auto' }}>
+    <div style={styles.card}>
+      <div style={styles.brandLockup}>
+        <div style={styles.brandMark}>
+          <img src="/logo.svg" alt="ISkill logo" style={styles.brandLogo} />
+        </div>
+        <div style={styles.brandText}>
+          <span style={styles.brandLabel}>Secure Workspace</span>
+          <span style={styles.brandName}>ISkill</span>
+        </div>
+      </div>
       <h1 style={styles.title}>Welcome Back</h1>
       <p style={styles.subtitle}>Enter your secure credentials</p>
 
@@ -119,12 +203,18 @@ export function LoginForm({ loginForm, setLoginForm, handleLogin, status }) {
           />
         </div>
 
+        <div style={styles.formMetaRow}>
+          <button type="button" style={styles.forgotButton} onClick={handleForgotPassword}>
+            Forgot password?
+          </button>
+        </div>
+
         <button 
           type="submit" 
           style={styles.button}
           onMouseEnter={handleMouseEnter}
         >
-          {isFormValid ? 'Sign In' : 'Complete Form'}
+          Sign In
         </button>
       </form>
 
