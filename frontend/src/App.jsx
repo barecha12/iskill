@@ -16,6 +16,7 @@ import { AdminConsoleView } from './components/AdminConsoleView'
 
 function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+  const [globalSearch, setGlobalSearch] = React.useState('')
   
   const {
     token, currentUser, authMode, setAuthMode, users, conversations, documents, messages, activeView, setActiveView,
@@ -74,6 +75,19 @@ function App() {
     0,
   )
 
+  const handleGlobalSearch = (event) => {
+    event.preventDefault()
+    const query = globalSearch.trim()
+
+    setDocumentSearch(query)
+    setConversationSearch(query)
+    setPeopleSearch(query)
+
+    if (query) {
+      setActiveView('documents')
+    }
+  }
+
   // Show full-page splash while syncing — nothing else renders
   if (isBootstrapping) {
     return (
@@ -96,7 +110,6 @@ function App() {
         currentUser={currentUser}
         activeView={activeView}
         setActiveView={setActiveView}
-        teamCount={teamCount}
         unreadCount={unreadCount}
         handleLogout={handleLogout}
         startTransition={startTransition}
@@ -110,7 +123,6 @@ function App() {
             setActiveView(view)
             setIsMobileMenuOpen(false)
           }}
-          teamCount={teamCount}
           unreadCount={unreadCount}
           handleLogout={handleLogout}
           startTransition={startTransition}
@@ -127,6 +139,9 @@ function App() {
           notifications={notifications}
           setSelectedUserId={setSelectedUserId}
           handleMarkAnnouncementRead={handleMarkAnnouncementRead}
+          globalSearch={globalSearch}
+          setGlobalSearch={setGlobalSearch}
+          handleGlobalSearch={handleGlobalSearch}
         />
 
 

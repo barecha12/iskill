@@ -4,7 +4,8 @@ import { NotificationTray } from './NotificationTray'
 
 export function WorkspaceHeader({ 
   viewTitle, activeView, setActiveView, onMenuClick, 
-  notifications = [], setSelectedUserId, handleMarkAnnouncementRead
+  notifications = [], setSelectedUserId, handleMarkAnnouncementRead,
+  globalSearch, setGlobalSearch, handleGlobalSearch
 }) {
   const [isTrayOpen, setIsTrayOpen] = React.useState(false)
   const showBack = activeView !== 'dashboard'
@@ -40,6 +41,20 @@ export function WorkspaceHeader({
       </div>
 
       <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <form className="workspace-search" onSubmit={handleGlobalSearch}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="search"
+            value={globalSearch}
+            onChange={(event) => setGlobalSearch(event.target.value)}
+            placeholder="Search people, chats, and documents"
+            aria-label="Search workspace"
+          />
+        </form>
+
         <div className="notification-wrapper" style={{ position: 'relative' }}>
           <button 
             className={`notification-trigger ${notifications.some(n => !n.read) ? 'active' : ''}`}
@@ -76,12 +91,50 @@ export function WorkspaceHeader({
         </div>
 
         <div className="header-meta">
-          <div className="header-chip">Today {formatCalendarDate(new Date())}</div>
-          <div className="header-chip accent">Executive Portal</div>
+          <div className="header-date-meta">Today {formatCalendarDate(new Date())}</div>
+          <div className="header-chip subtle" title="Current workspace mode">Secure Workspace</div>
         </div>
       </div>
 
       <style>{`
+        .workspace-search {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-width: 300px;
+          padding: 0 14px;
+          height: 42px;
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          color: var(--text-muted);
+        }
+        .workspace-search:focus-within {
+          border-color: rgba(212, 175, 55, 0.35);
+          box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.08);
+          color: var(--primary);
+        }
+        .workspace-search input {
+          flex: 1;
+          background: transparent;
+          border: none;
+          outline: none;
+          color: var(--text-main);
+          font-size: 13px;
+        }
+        .workspace-search input::placeholder {
+          color: var(--text-muted);
+        }
+        .header-date-meta {
+          font-size: 11px;
+          color: rgba(148, 163, 184, 0.72);
+          letter-spacing: 0.08em;
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+        .header-chip.subtle {
+          white-space: nowrap;
+        }
         .notification-trigger.active {
           border-color: rgba(212, 175, 55, 0.3);
           box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
@@ -105,6 +158,16 @@ export function WorkspaceHeader({
           0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
           70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
           100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+        @media (max-width: 1024px) {
+          .workspace-search {
+            min-width: 220px;
+          }
+        }
+        @media (max-width: 768px) {
+          .workspace-search {
+            display: none;
+          }
         }
       `}</style>
     </header>

@@ -14,9 +14,14 @@ export function filterConversations(conversations, query) {
 
 export function filterPeople(users, currentUser, query) {
   const normalizedQuery = query.trim().toLowerCase()
+  const currentUserId = Number(currentUser?.id)
 
   return users.filter((user) => {
-    if (user.id === currentUser?.id) {
+    if (Number(user.id) === currentUserId) {
+      return false
+    }
+
+    if (Boolean(user.is_admin)) {
       return false
     }
 

@@ -21,6 +21,57 @@ export function DashboardView({
   const activeDepartmentCount = [...new Set(users.map(u => u.profile?.department).filter(Boolean))].length
   const recentGlobalDocs = documents.slice(0, 6)
   const myRecentDocs = documents.filter(d => d.uploaded_by === currentUser?.id).slice(0, 5)
+  const dashboardDocs = isAdmin ? documents : documents.filter(d => d.uploaded_by === currentUser?.id)
+  const activityBars = React.useMemo(() => {
+    const today = new Date()
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today)
+      date.setDate(today.getDate() - (6 - index))
+      const key = date.toISOString().slice(0, 10)
+      const total = dashboardDocs.filter((doc) => {
+        const created = doc.created_at ? new Date(doc.created_at).toISOString().slice(0, 10) : ''
+        return created === key
+      }).length
+
+      return {
+        key,
+        label: date.toLocaleDateString(undefined, { weekday: 'short' }),
+        total,
+      }
+    })
+  }, [dashboardDocs])
+  const maxActivity = Math.max(...activityBars.map((item) => item.total), 1)
+  const insightCards = [
+    {
+      label: isAdmin ? 'Total Data Volume' : 'My Assets',
+      value: isAdmin ? documentCount : dashboardDocs.length,
+      accent: 'var(--primary)',
+      detail: isAdmin ? `${formatBytes(totalStorageBytes)} stored` : 'Documents in your workspace',
+      border: '4px solid var(--primary)',
+    },
+    {
+      label: isAdmin ? 'Personnel Registry' : 'Messages',
+      value: isAdmin ? users.length : unreadCount,
+      accent: '#3b82f6',
+      detail: isAdmin ? `Active in ${activeDepartmentCount} departments` : unreadCount > 0 ? 'Unread conversations waiting' : 'All caught up',
+      border: '4px solid #3b82f6',
+    },
+    {
+      label: 'Security Layer',
+      value: 256,
+      valueSuffix: '-bit',
+      accent: '#a855f7',
+      detail: 'AES encryption enforced',
+      border: '4px solid #a855f7',
+    },
+    {
+      label: 'Authentication',
+      value: '100%',
+      accent: '#eab308',
+      detail: 'Token verification online',
+      border: '4px solid #eab308',
+    },
+  ]
 
   return (
     <section className="dashboard-view-content" style={{ animation: 'fadeIn 0.6s ease-out' }}>
@@ -84,49 +135,22 @@ export function DashboardView({
 
       {/* Global Metadata Grid */}
       <div className="personal-insights-grid">
-        <div className="premium-card" style={{ padding: '24px', borderLeft: '4px solid var(--primary)' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: '700' }}>
-            {isAdmin ? 'Total Data Volume' : 'My Assets'}
-          </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <h2 style={{ fontSize: '36px', margin: 0, color: '#fff', fontWeight: '800' }}>
-              {isAdmin ? formatBytes(totalStorageBytes) : documents.filter(d => d.uploaded_by === currentUser?.id).length}
-            </h2>
+        {insightCards.map((card) => (
+          <div key={card.label} className="premium-card" style={{ padding: '24px', borderLeft: card.border }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: '700' }}>
+              {card.label}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
+              <h2 style={{ fontSize: '36px', margin: 0, color: '#fff', fontWeight: '800' }}>
+                {card.value}
+              </h2>
+              {card.valueSuffix ? <span style={{ color: card.accent, fontWeight: '700', fontSize: '14px' }}>{card.valueSuffix}</span> : null}
+            </div>
+            <div style={{ fontSize: '12px', color: card.accent, marginTop: '8px', fontWeight: '600' }}>
+              {card.detail}
+            </div>
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--primary)', marginTop: '8px', fontWeight: '600' }}>
-            {isAdmin ? `Distributed across ${documentCount} files` : 'Active uploads'}
-          </div>
-        </div>
-
-        <div className="premium-card" style={{ padding: '24px', borderLeft: '4px solid #3b82f6' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: '700' }}>
-            {isAdmin ? 'Personnel Registry' : 'Messages'}
-          </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <h2 style={{ fontSize: '36px', margin: 0, color: '#fff', fontWeight: '800' }}>
-              {isAdmin ? users.length : unreadCount}
-            </h2>
-          </div>
-          <div style={{ fontSize: '12px', color: '#3b82f6', marginTop: '8px', fontWeight: '600' }}>
-            {isAdmin ? `Active in ${activeDepartmentCount} sectors` : 'Unread notifications'}
-          </div>
-        </div>
-
-        <div className="premium-card" style={{ padding: '24px', borderLeft: '4px solid #a855f7' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: '700' }}>Security Layer</span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <h2 style={{ fontSize: '36px', margin: 0, color: '#fff', fontWeight: '800' }}>Enforced</h2>
-          </div>
-          <div style={{ fontSize: '12px', color: '#a855f7', marginTop: '8px', fontWeight: '600' }}>AES-256 Protocol</div>
-        </div>
-
-        <div className="premium-card" style={{ padding: '24px', borderLeft: '4px solid #eab308' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: '700' }}>Authentication</span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <h2 style={{ fontSize: '36px', margin: 0, color: '#fff', fontWeight: '800' }}>Secure</h2>
-          </div>
-          <div style={{ fontSize: '12px', color: '#eab308', marginTop: '8px', fontWeight: '600' }}>Sanctum/Tokens</div>
-        </div>
+        ))}
       </div>
 
       {/* Primary Governance Grid */}
@@ -144,7 +168,33 @@ export function DashboardView({
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
               </button>
             </div>
-            
+
+            <div className="activity-chart-card">
+              <div className="activity-chart-header">
+                <span>Last 7 days</span>
+                <strong>{activityBars.reduce((sum, item) => sum + item.total, 0)} uploads</strong>
+              </div>
+              <div className="activity-chart-bars">
+                {activityBars.map((item) => (
+                  <div key={item.key} className="activity-chart-col">
+                    <div className="activity-chart-track">
+                      <div
+                        className={`activity-chart-fill ${item.total === 0 ? 'empty' : ''}`}
+                        style={{ height: `${Math.max((item.total / maxActivity) * 100, item.total ? 18 : 16)}%` }}
+                        title={`${item.label}: ${item.total}`}
+                      ></div>
+                    </div>
+                    <small>{item.total === 0 ? 'No activity' : `${item.total} file${item.total > 1 ? 's' : ''}`}</small>
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="activity-section-divider">
+              <span>Recent Files</span>
+            </div>
+
             <div className="activity-list-professional">
               {(isAdmin ? recentGlobalDocs : myRecentDocs).map(doc => (
                 <div key={doc.id} className="activity-row">
@@ -201,15 +251,15 @@ export function DashboardView({
           <div className="premium-card">
             <h3 style={{ fontSize: '16px', margin: '0 0 16px' }}>{isAdmin ? 'Governance Controls' : 'Quick Actions'}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <button className="quick-action-pill" onClick={() => setActiveView(isAdmin ? 'admin' : 'documents')}>
+              <button className="quick-action-pill documents" onClick={() => setActiveView(isAdmin ? 'admin' : 'documents')}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 <span>{isAdmin ? 'Registry' : 'Upload'}</span>
               </button>
-              <button className="quick-action-pill" onClick={() => setActiveView('chat')}>
+              <button className="quick-action-pill communications" onClick={() => setActiveView('chat')}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 <span>Communicate</span>
               </button>
-              <button className="quick-action-pill" onClick={handleRefresh}>
+              <button className="quick-action-pill sync" onClick={handleRefresh}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                 <span>Sync Node</span>
               </button>
@@ -233,9 +283,9 @@ export function DashboardView({
               <div className="topology-stat">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>API Response Time</span>
-                  <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '700' }}>24ms</span>
+                  <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: '700' }}>24ms · Excellent</span>
                 </div>
-                <div className="progress-container"><div className="progress-bar" style={{ width: '92%' }}></div></div>
+                <div className="progress-container"><div className="progress-bar" style={{ width: '92%', background: '#38bdf8' }}></div></div>
               </div>
             </div>
           </div>
@@ -249,6 +299,86 @@ export function DashboardView({
           flex-direction: column;
           gap: 12px;
           margin-top: 20px;
+        }
+        .activity-chart-card {
+          margin-top: 18px;
+          padding: 18px;
+          border-radius: 16px;
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        .activity-chart-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          font-size: 12px;
+          color: var(--text-muted);
+        }
+        .activity-chart-header strong {
+          color: var(--primary);
+          font-size: 12px;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+        .activity-chart-bars {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 12px;
+          align-items: end;
+        }
+        .activity-chart-col {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+        }
+        .activity-chart-col span {
+          font-size: 11px;
+          color: var(--text-muted);
+        }
+        .activity-chart-col small {
+          font-size: 10px;
+          color: rgba(148, 163, 184, 0.78);
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+        .activity-chart-track {
+          width: 100%;
+          height: 88px;
+          border-radius: 12px;
+          background: rgba(255,255,255,0.05);
+          display: flex;
+          align-items: flex-end;
+          overflow: hidden;
+        }
+        .activity-chart-fill {
+          width: 100%;
+          border-radius: 12px 12px 0 0;
+          background: linear-gradient(180deg, #f5d56b 0%, #9a6518 100%);
+          min-height: 6px;
+        }
+        .activity-chart-fill.empty {
+          background: rgba(71, 85, 105, 0.55);
+          border-top: 1px dashed rgba(148, 163, 184, 0.45);
+        }
+        .activity-section-divider {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 20px 0 0;
+          color: var(--text-muted);
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+        }
+        .activity-section-divider::before,
+        .activity-section-divider::after {
+          content: '';
+          height: 1px;
+          flex: 1;
+          background: rgba(255,255,255,0.08);
         }
         .activity-row {
           background: rgba(255,255,255,0.02);
@@ -286,7 +416,7 @@ export function DashboardView({
         .quick-action-pill {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.05);
-          padding: 12px;
+          padding: 14px 12px;
           border-radius: 10px;
           display: flex;
           align-items: center;
@@ -294,15 +424,37 @@ export function DashboardView({
           color: #fff;
           cursor: pointer;
           transition: all 0.2s;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .quick-action-pill.documents {
+          background: rgba(212, 175, 55, 0.14);
+          border-color: rgba(212, 175, 55, 0.28);
+          color: #f5d56b;
+        }
+        .quick-action-pill.communications {
+          background: rgba(59, 130, 246, 0.12);
+          border-color: rgba(59, 130, 246, 0.24);
+          color: #93c5fd;
+        }
+        .quick-action-pill.sync {
+          background: rgba(20, 184, 166, 0.14);
+          border-color: rgba(20, 184, 166, 0.26);
+          color: #99f6e4;
+        }
+        .quick-action-pill.danger {
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.2);
+          color: #fca5a5;
         }
         .quick-action-pill:hover {
-          background: var(--primary);
-          color: #000;
+          transform: translateY(-2px);
         }
+        .quick-action-pill.documents:hover { background: rgba(212, 175, 55, 0.22); color: #fde68a; border-color: rgba(212, 175, 55, 0.4); }
+        .quick-action-pill.communications:hover { background: rgba(59, 130, 246, 0.18); color: #bfdbfe; border-color: rgba(59, 130, 246, 0.34); }
+        .quick-action-pill.sync:hover { background: rgba(20, 184, 166, 0.2); color: #ccfbf1; border-color: rgba(20, 184, 166, 0.35); }
         .quick-action-pill svg { transition: stroke 0.2s; }
-        .quick-action-pill:hover svg { stroke: #000; }
         .quick-action-pill span { font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .quick-action-pill.danger:hover { background: #ef4444; color: #fff; }
+        .quick-action-pill.danger:hover { background: rgba(239, 68, 68, 0.2); color: #fff; border-color: rgba(239, 68, 68, 0.35); }
         .empty-state-p {
           padding: 60px;
           text-align: center;

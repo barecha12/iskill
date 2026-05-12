@@ -6,7 +6,6 @@ export function MobileNav({
   currentUser,
   activeView,
   setActiveView,
-  teamCount,
   unreadCount,
   handleLogout,
   startTransition,
@@ -31,17 +30,6 @@ export function MobileNav({
           </button>
         </div>
 
-        <div className="sidebar-summary">
-          <div className="summary-stat">
-            <span>Team</span>
-            <strong>{teamCount}</strong>
-          </div>
-          <div className="summary-stat">
-            <span>Inbox</span>
-            <strong>{unreadCount}</strong>
-          </div>
-        </div>
-
         <nav className="sidebar-nav">
           {navigationItems.filter(item => {
             if (Boolean(currentUser?.is_admin)) {
@@ -59,10 +47,15 @@ export function MobileNav({
               }}
             >
               <div className="nav-link-row">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={item.icon} />
-                </svg>
-                <span className="nav-link-label">{item.label}</span>
+                <div className="nav-link-main">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d={item.icon} />
+                  </svg>
+                  <span className="nav-link-label">{item.label}</span>
+                </div>
+                {item.id === 'chat' && unreadCount > 0 ? (
+                  <span className="nav-link-badge">{unreadCount}</span>
+                ) : null}
               </div>
             </button>
           ))}
@@ -76,8 +69,10 @@ export function MobileNav({
               }}
             >
               <div className="nav-link-row">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                <span className="nav-link-label">Governance</span>
+                <div className="nav-link-main">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span className="nav-link-label">Governance</span>
+                </div>
               </div>
             </button>
           )}

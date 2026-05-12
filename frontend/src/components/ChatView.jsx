@@ -18,11 +18,61 @@ export function ChatView({
   conversationSearch,
   setConversationSearch,
   messageFileInputRef,
-  startTransition
+  startTransition,
 }) {
-  // Mobile-only: tracks which panel is visible ('list' | 'chat')
-  // Kept separate from selectedUserId so desktop is unaffected
   const [mobilePanel, setMobilePanel] = useState('list')
+
+  const getPresence = (timestamp) => {
+    if (!timestamp) {
+      return { label: 'Offline', className: 'offline' }
+    }
+
+    const diffMs = Date.now() - new Date(timestamp).getTime()
+    const diffMinutes = diffMs / (1000 * 60)
+
+    if (diffMinutes <= 15) {
+      return { label: 'Online', className: 'online' }
+    }
+
+    if (diffMinutes <= 24 * 60) {
+      return { label: 'Away', className: 'away' }
+    }
+
+    return { label: 'Offline', className: 'offline' }
+  }
+
+  const formatConversationTimestamp = (value) => {
+    if (!value) return ''
+
+    const date = new Date(value)
+    const now = new Date()
+    const isToday = date.toDateString() === now.toDateString()
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    const isYesterday = date.toDateString() === yesterday.toDateString()
+
+    if (isToday) {
+      return new Intl.DateTimeFormat(undefined, {
+        hour: 'numeric',
+        minute: '2-digit',
+      }).format(date)
+    }
+
+    if (isYesterday) {
+      return 'Yesterday'
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+      month: 'short',
+      day: 'numeric',
+    }).format(date)
+  }
+
+  const selectedConversation =
+    filteredConversations.find((conversation) => conversation.user.id === selectedUserId) ?? null
+  const selectedPresence = getPresence(
+    selectedConversation?.last_message?.created_at ?? messages.at(-1)?.created_at,
+  )
 
   function handleSelectConversation(userId) {
     startTransition(() => setSelectedUserId(userId))
@@ -31,8 +81,6 @@ export function ChatView({
 
   return (
     <section className={`chat-layout mobile-panel-${mobilePanel}`}>
-
-      {/* ── Conversation List ── */}
       <div className="chat-list panel">
         <div className="chat-list-header">
           <input
@@ -45,37 +93,41 @@ export function ChatView({
         </div>
 
         <div className="conversation-list-scroll">
-          {filteredConversations.map((conversation) => (
-            <button
-              key={conversation.user.id}
-              type="button"
-              className={conversation.user.id === selectedUserId ? 'conversation-row active' : 'conversation-row'}
-              onClick={() => handleSelectConversation(conversation.user.id)}
-            >
-              <div className="avatar-circle">{getInitials(conversation.user.name)}</div>
-              <div className="conversation-copy">
-                <div className="conv-name-row">
-                  <strong>{conversation.user.name}</strong>
-                  {conversation.last_message && (
-                    <time>{formatDateTime(conversation.last_message.created_at)}</time>
-                  )}
+          {filteredConversations.map((conversation) => {
+            const presence = getPresence(conversation.last_message?.created_at)
+
+            return (
+              <button
+                key={conversation.user.id}
+                type="button"
+                className={conversation.user.id === selectedUserId ? 'conversation-row active' : 'conversation-row'}
+                onClick={() => handleSelectConversation(conversation.user.id)}
+              >
+                <div className={`chat-avatar avatar-circle status-${presence.className}`}>
+                  {getInitials(conversation.user.name)}
                 </div>
-                <span>{conversation.last_message?.message ?? 'No messages yet.'}</span>
-              </div>
-              {conversation.unread_count ? <span className="badge">{conversation.unread_count}</span> : null}
-            </button>
-          ))}
+                <div className="conversation-copy">
+                  <div className="conv-name-row">
+                    <strong>{conversation.user.name}</strong>
+                    {conversation.last_message ? (
+                      <time>{formatConversationTimestamp(conversation.last_message.created_at)}</time>
+                    ) : null}
+                  </div>
+                  <span>{conversation.last_message?.message ?? 'No messages yet.'}</span>
+                </div>
+                {conversation.unread_count ? <span className="badge">{conversation.unread_count}</span> : null}
+              </button>
+            )
+          })}
 
           {filteredConversations.length === 0 ? <p className="empty-state">No matches.</p> : null}
         </div>
       </div>
 
-      {/* ── Message Window ── */}
       <div className="chat-window panel">
         {selectedUser ? (
           <>
             <div className="chat-window-header">
-              {/* Back button — hidden on desktop, shown on mobile via CSS */}
               <button
                 className="mobile-back-btn"
                 onClick={() => setMobilePanel('list')}
@@ -87,17 +139,29 @@ export function ChatView({
                 </svg>
               </button>
               <div className="chat-header-contact">
-                <div className="avatar-circle sm">{getInitials(selectedUser.name)}</div>
+                <div className={`chat-avatar avatar-circle sm status-${selectedPresence.className}`}>
+                  {getInitials(selectedUser.name)}
+                </div>
                 <div className="header-contact-info">
                   <strong>{selectedUser.name}</strong>
-                  <span>{selectedUser.profile?.department ?? 'Online'}</span>
+                  <span>{selectedPresence.label} · {selectedUser.profile?.department ?? 'General'}</span>
                 </div>
               </div>
             </div>
 
             <div className="message-stream">
-              {isLoadingMessages ? <p className="empty-state">Loading conversation…</p> : null}
-              {!isLoadingMessages && messages.length === 0 ? <p className="empty-state">Start the conversation with a quick message or file.</p> : null}
+              {isLoadingMessages ? <p className="empty-state">Loading conversation...</p> : null}
+              {!isLoadingMessages && messages.length === 0 ? (
+                <div className="chat-empty-state">
+                  <div className="chat-empty-icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                  </div>
+                  <strong>Start the conversation</strong>
+                  <p>Send a quick message or share a file to begin.</p>
+                </div>
+              ) : null}
 
               {messages.map((message) => (
                 <article
@@ -126,7 +190,13 @@ export function ChatView({
 
             <form className="telegram-composer" onSubmit={handleSendMessage}>
               <div className="input-wrapper">
-                <button type="button" className="attach-btn" onClick={() => messageFileInputRef.current?.click()}>
+                <button
+                  type="button"
+                  className="attach-btn"
+                  title="Attach file"
+                  aria-label="Attach file"
+                  onClick={() => messageFileInputRef.current?.click()}
+                >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                   <input
                     ref={messageFileInputRef}
@@ -147,7 +217,7 @@ export function ChatView({
                 {chatAttachment && (
                   <div className="attachment-preview-chip">
                     <span>{chatAttachment.name}</span>
-                    <button type="button" onClick={() => setChatAttachment(null)}>×</button>
+                    <button type="button" onClick={() => setChatAttachment(null)}>x</button>
                   </div>
                 )}
               </div>
@@ -158,7 +228,15 @@ export function ChatView({
             </form>
           </>
         ) : (
-          <p className="empty-state">Choose a teammate to view messages.</p>
+          <div className="chat-empty-state">
+            <div className="chat-empty-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <strong>Choose a teammate</strong>
+            <p>Select a conversation to view messages and shared files.</p>
+          </div>
         )}
       </div>
     </section>

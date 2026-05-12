@@ -14,6 +14,12 @@ export function DocumentsView({
   setDocumentSearch
 }) {
   const [viewingDocument, setViewingDocument] = useState(null)
+  const [isDragActive, setIsDragActive] = useState(false)
+
+  const handleFileSelect = (file) => {
+    setDocumentForm((current) => ({ ...current, file }))
+    setIsDragActive(false)
+  }
 
   return (
     <section className="documents-layout">
@@ -37,14 +43,35 @@ export function DocumentsView({
 
             <div className="form-group">
               <label>Select File</label>
-              <div className="file-drop-zone" onClick={() => documentFileInputRef.current?.click()}>
+              <div
+                className={`file-drop-zone ${isDragActive ? 'drag-active' : ''}`}
+                onClick={() => documentFileInputRef.current?.click()}
+                onDragEnter={(event) => {
+                  event.preventDefault()
+                  setIsDragActive(true)
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault()
+                  setIsDragActive(true)
+                }}
+                onDragLeave={(event) => {
+                  event.preventDefault()
+                  setIsDragActive(false)
+                }}
+                onDrop={(event) => {
+                  event.preventDefault()
+                  handleFileSelect(event.dataTransfer.files?.[0] ?? null)
+                }}
+              >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <span>{documentForm.file ? documentForm.file.name : 'Choose file to upload'}</span>
+                <strong>{documentForm.file ? documentForm.file.name : 'Choose file to upload'}</strong>
+                <span>or drag and drop here</span>
+                <small>Accepted: PDF, DOCX, XLSX, PNG, JPG, ZIP</small>
                 <input
                   ref={documentFileInputRef}
                   type="file"
                   hidden
-                  onChange={(event) => setDocumentForm((current) => ({ ...current, file: event.target.files?.[0] ?? null }))}
+                  onChange={(event) => handleFileSelect(event.target.files?.[0] ?? null)}
                   accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.zip"
                 />
               </div>
@@ -62,15 +89,22 @@ export function DocumentsView({
         <div className="repo-header">
           <div>
             <h3>Resource Repository</h3>
-            <p>Direct access to shared team documents</p>
+            <p>{filteredDocuments.length} document{filteredDocuments.length === 1 ? '' : 's'} in the repository</p>
           </div>
-          <input
-            className="search-input"
-            type="search"
-            value={documentSearch}
-            onChange={(event) => setDocumentSearch(event.target.value)}
-            placeholder="Search assets..."
-          />
+          <div className="repo-toolbar">
+            <select className="repo-filter-select" defaultValue="latest" aria-label="Sort documents">
+              <option value="latest">Latest first</option>
+              <option value="type">By file type</option>
+              <option value="department">By department</option>
+            </select>
+            <input
+              className="search-input"
+              type="search"
+              value={documentSearch}
+              onChange={(event) => setDocumentSearch(event.target.value)}
+              placeholder="Search assets..."
+            />
+          </div>
         </div>
 
         <div className="document-grid">
@@ -93,9 +127,16 @@ export function DocumentsView({
                 </div>
 
                 <div className="doc-card-info">
-                  <strong title={document.title || document.original_name}>
-                    {document.title || document.original_name}
-                  </strong>
+                  <strong title={document.title || document.original_name}>{document.title || document.original_name}</strong>
+                  <span className="doc-file-name" title={document.original_name}>{document.original_name}</span>
+                  <div className="doc-meta-line">
+                    <span>{getFriendlyFileType(document.mime_type, document.original_name)}</span>
+                    <span>{formatFileSize(document.size)}</span>
+                  </div>
+                  <div className="doc-meta-line">
+                    <span>Uploaded: {formatDateTime(document.created_at)}</span>
+                    <span className="doc-department-tag">{document.uploader?.profile?.department || 'General'}</span>
+                  </div>
                 </div>
 
                 <div className="doc-card-actions">
@@ -132,6 +173,7 @@ export function DocumentsView({
           })}
         </div>
         {filteredDocuments.length === 0 && <div className="empty-state">No assets found in the repository.</div>}
+        {filteredDocuments.length > 0 && <div className="documents-endcap">No more documents to display.</div>}
       </div>
 
       {viewingDocument && (

@@ -7,11 +7,14 @@ export function Sidebar({
   currentUser, 
   activeView, 
   setActiveView, 
-  teamCount, 
   unreadCount, 
   handleLogout,
   startTransition 
 }) {
+  const navBadgeMap = {
+    chat: unreadCount,
+  }
+
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
@@ -20,17 +23,6 @@ export function Sidebar({
           <div>
             <h1 className="sidebar-title">Iskill</h1>
             <p className="sidebar-subtitle">Workspace Portal</p>
-          </div>
-        </div>
-
-        <div className="sidebar-summary">
-          <div className="summary-stat">
-            <span>Team</span>
-            <strong>{teamCount}</strong>
-          </div>
-          <div className="summary-stat">
-            <span>Inbox</span>
-            <strong>{unreadCount}</strong>
           </div>
         </div>
       </div>
@@ -50,10 +42,15 @@ export function Sidebar({
             onClick={() => startTransition(() => setActiveView(item.id))}
           >
             <div className="nav-link-row">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d={item.icon} />
-              </svg>
-              <span className="nav-link-label">{item.label}</span>
+              <div className="nav-link-main">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={item.icon} />
+                </svg>
+                <span className="nav-link-label">{item.label}</span>
+              </div>
+              {navBadgeMap[item.id] > 0 && (
+                <span className="nav-link-badge">{navBadgeMap[item.id]}</span>
+              )}
             </div>
           </button>
         ))}
@@ -64,8 +61,10 @@ export function Sidebar({
             onClick={() => startTransition(() => setActiveView('admin'))}
           >
             <div className="nav-link-row">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              <span className="nav-link-label">Governance</span>
+              <div className="nav-link-main">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span className="nav-link-label">Governance</span>
+              </div>
             </div>
           </button>
         )}
