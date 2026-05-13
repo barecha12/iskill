@@ -8,6 +8,8 @@ import { ChatView } from './components/ChatView'
 import { DocumentsView } from './components/DocumentsView'
 import { PeopleView } from './components/PeopleView'
 import { AuthPage } from './components/AuthPage'
+import { TermsOfService } from './components/TermsOfService'
+import { PrivacyPolicy } from './components/PrivacyPolicy'
 import { ConfirmModal } from './components/ConfirmModal'
 import { MobileNav } from './components/MobileNav'
 import { ProfileView } from './components/ProfileView'
@@ -41,6 +43,9 @@ function App() {
 
 
   if (!token) {
+    if (authMode === 'terms') return <TermsOfService setAuthMode={setAuthMode} />
+    if (authMode === 'privacy') return <PrivacyPolicy setAuthMode={setAuthMode} />
+    
     return (
       <AuthPage
         authMode={authMode}

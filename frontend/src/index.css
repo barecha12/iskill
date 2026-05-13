@@ -115,8 +115,16 @@
 }
 
 .legal-container {
-  z-index: 5;
+  width: 100%;
+  height: 100vh;
   background: #0f172a;
+  overflow-y: auto;
+}
+
+.legal-scroll-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px;
 }
 
 .overlay-container {
