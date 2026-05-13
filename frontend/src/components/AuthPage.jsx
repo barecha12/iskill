@@ -24,6 +24,7 @@ export function AuthPage(props) {
             setRegisterForm={props.setRegisterForm}
             handleRegister={props.handleRegister}
             status={props.status}
+            setAuthMode={props.setAuthMode}
           />
           <div className="mobile-switch-text">
             Already have an account? <span style={{ color: '#d4af37', fontWeight: 600, cursor: 'pointer' }} onClick={handleSignInClick}>Sign In</span>

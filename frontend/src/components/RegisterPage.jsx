@@ -1,7 +1,7 @@
 import React from 'react'
 import { StatusBanner } from './StatusBanner'
 
-export function RegisterForm({ registerForm, setRegisterForm, handleRegister, status }) {
+export function RegisterForm({ registerForm, setRegisterForm, handleRegister, status, setAuthMode }) {
   const [buttonOffset, setButtonOffset] = React.useState({ x: 0, y: 0 })
 
   const passwordStrength = (() => {
