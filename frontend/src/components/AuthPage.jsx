@@ -1,6 +1,8 @@
 import React from 'react'
 import { LoginForm } from './LoginPage'
 import { RegisterForm } from './RegisterPage'
+import { ForgotForm } from './ForgotForm'
+import { ResetPasswordForm } from './ResetPasswordForm'
 
 export function AuthPage(props) {
   const isRightPanelActive = props.authMode === 'register'
@@ -15,7 +17,7 @@ export function AuthPage(props) {
 
   return (
     <div className="auth-page-shell">
-      <div className={`auth-container ${isRightPanelActive ? 'right-panel-active' : ''}`} id="container">
+      <div className={`auth-container ${isRightPanelActive ? 'right-panel-active' : ''} mode-${props.authMode}`} id="container">
         <div className="auth-form-container sign-up-container">
           <RegisterForm 
             registerForm={props.registerForm}
@@ -34,10 +36,27 @@ export function AuthPage(props) {
             handleLogin={props.handleLogin}
             status={props.status}
             setStatus={props.setStatus}
+            setAuthMode={props.setAuthMode}
           />
           <div className="mobile-switch-text">
             Don't have an account? <span style={{ color: '#6366f1', fontWeight: 600, cursor: 'pointer' }} onClick={handleSignUpClick}>Create one</span>
           </div>
+        </div>
+
+        <div className={`auth-form-container forgot-container ${props.authMode === 'forgot' ? 'active' : ''}`}>
+          <ForgotForm 
+            handleForgotPasswordRequest={props.handleForgotPasswordRequest}
+            setAuthMode={props.setAuthMode}
+            status={props.status}
+          />
+        </div>
+
+        <div className={`auth-form-container reset-container ${props.authMode === 'reset-password' ? 'active' : ''}`}>
+          <ResetPasswordForm 
+            handleResetPassword={props.handleResetPassword}
+            setAuthMode={props.setAuthMode}
+            status={props.status}
+          />
         </div>
         
         <div className="overlay-container">

@@ -33,6 +33,7 @@ function App() {
     handleLogin, handleRegister, handleLogout, handleSendMessage, handleDocumentUpload, handleDeleteDocument, handleDownload, handleInspect,
     handleRefresh, handleGenerateReport,
     handleUpdateProfile, handleUpdatePassword,
+    handleForgotPasswordRequest, handleResetPassword,
     stats, recentActivity,
     startTransition
   } = useAppData()
@@ -50,6 +51,8 @@ function App() {
         registerForm={registerForm}
         setRegisterForm={setRegisterForm}
         handleRegister={handleRegister}
+        handleForgotPasswordRequest={handleForgotPasswordRequest}
+        handleResetPassword={handleResetPassword}
         status={status}
         setStatus={setStatus}
       />

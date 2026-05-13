@@ -1,7 +1,7 @@
 import React from 'react'
 import { StatusBanner } from './StatusBanner'
 
-export function LoginForm({ loginForm, setLoginForm, handleLogin, status, setStatus }) {
+export function LoginForm({ loginForm, setLoginForm, handleLogin, status, setStatus, setAuthMode }) {
   const [buttonOffset, setButtonOffset] = React.useState({ x: 0, y: 0 })
   
   const isFormValid = loginForm.email.includes('@') && loginForm.password.length >= 6
@@ -152,10 +152,7 @@ export function LoginForm({ loginForm, setLoginForm, handleLogin, status, setSta
   }
 
   const handleForgotPassword = () => {
-    setStatus?.({
-      type: 'info',
-      message: 'Password reset is not live yet. Please contact your workspace administrator for credential assistance.',
-    })
+    setAuthMode?.('forgot')
   }
 
   return (

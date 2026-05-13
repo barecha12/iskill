@@ -79,6 +79,35 @@
   pointer-events: all;
 }
 
+.forgot-container, .reset-container {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.forgot-container.active, .reset-container.active {
+  opacity: 1;
+  z-index: 6;
+  pointer-events: all;
+}
+
+/* Hide other containers when forgot/reset is active */
+.auth-container.mode-forgot .sign-in-container,
+.auth-container.mode-reset-password .sign-in-container,
+.auth-container.mode-forgot .sign-up-container,
+.auth-container.mode-reset-password .sign-up-container,
+.auth-container.mode-forgot .overlay-container,
+.auth-container.mode-reset-password .overlay-container {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .overlay-container {
   position: absolute;
   top: 0;
@@ -316,6 +345,12 @@
   }
 
   .auth-container.right-panel-active .sign-up-container {
+    display: flex;
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .forgot-container.active, .reset-container.active {
     display: flex;
     opacity: 1;
     pointer-events: all;

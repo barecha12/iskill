@@ -5,17 +5,67 @@ import { filterConversations, filterPeople } from '../utils/filters'
 
 export function useAppData() {
   const [token, setToken] = useState(() => window.localStorage.getItem(TOKEN_KEY) ?? '')
-  const [authMode, setAuthMode] = useState('login')
+  const [authMode, setAuthMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('mode') === 'reset-password' && params.get('token')) return 'reset-password'
+    return params.get('auth') ?? 'login'
+  })
   const [currentUser, setCurrentUser] = useState(null)
   const [users, setUsers] = useState([])
   const [conversations, setConversations] = useState([])
   const [documents, setDocuments] = useState([])
   const [messages, setMessages] = useState([])
-  const [activeView, setActiveView] = useState(() => window.localStorage.getItem('iskill_view') ?? 'dashboard')
+  const [activeView, setActiveView] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('view') ?? window.localStorage.getItem('iskill_view') ?? 'dashboard'
+  })
 
+  // Sync state to URL and localStorage
   useEffect(() => {
-    window.localStorage.setItem('iskill_view', activeView)
-  }, [activeView])
+    const url = new URL(window.location.href)
+    if (token) {
+      url.searchParams.set('view', activeView)
+      url.searchParams.delete('auth')
+      url.searchParams.delete('mode')
+      url.searchParams.delete('token')
+      url.searchParams.delete('email')
+      window.localStorage.setItem('iskill_view', activeView)
+    } else {
+      if (authMode !== 'reset-password') {
+        url.searchParams.set('auth', authMode)
+        url.searchParams.delete('view')
+        url.searchParams.delete('mode')
+        url.searchParams.delete('token')
+        url.searchParams.delete('email')
+      }
+      // If it's reset-password, we let the URL params stay as they are
+    }
+    
+    if (window.location.search !== url.search) {
+      window.history.pushState({ view: activeView, auth: authMode }, '', url.href)
+    }
+  }, [activeView, authMode, token])
+
+  // Listen for back/forward buttons
+  useEffect(() => {
+    const handlePopState = (event) => {
+      const params = new URLSearchParams(window.location.search)
+      if (token) {
+        const view = params.get('view') || 'dashboard'
+        setActiveView(view)
+      } else {
+        if (params.get('mode') === 'reset-password') {
+          setAuthMode('reset-password')
+        } else {
+          const auth = params.get('auth') || 'login'
+          setAuthMode(auth)
+        }
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [token])
   const [selectedUserId, setSelectedUserId] = useState(null)
   const [isBootstrapping, setIsBootstrapping] = useState(Boolean(token))
   const [isLoadingMessages, setIsLoadingMessages] = useState(false)
@@ -77,6 +127,18 @@ export function useAppData() {
     }
     runLoadMessages(selectedUserId)
   }, [activeView, selectedUserId, token])
+
+  useEffect(() => {
+    // Detect forgot/reset mode from URL
+    const params = new URLSearchParams(window.location.search)
+    const mode = params.get('mode')
+    const tokenParam = params.get('token')
+    const emailParam = params.get('email')
+
+    if (mode === 'reset-password' && tokenParam && emailParam) {
+      setAuthMode('reset-password')
+    }
+  }, [])
 
   useEffect(() => {
     if (status.message) {
@@ -307,6 +369,36 @@ export function useAppData() {
       setStatus({ type: 'success', message: response.message || 'Account created successfully. Please sign in.' })
       setRegisterForm({ name: '', email: '', password: '', password_confirmation: '', title: '', department: '' })
       setAuthMode('login')
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message })
+    }
+  }
+
+  async function handleForgotPasswordRequest(email) {
+    setStatus({ type: 'info', message: 'Processing reset request...' })
+    try {
+      const response = await apiRequest('/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      }, '')
+      setStatus({ type: 'success', message: response.message })
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message })
+    }
+  }
+
+  async function handleResetPassword(data) {
+    setStatus({ type: 'info', message: 'Resetting password...' })
+    try {
+      const response = await apiRequest('/reset-password', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }, '')
+      setStatus({ type: 'success', message: response.message })
+      setAuthMode('login')
+      
+      // Clean up URL
+      window.history.replaceState({}, document.title, "/")
     } catch (error) {
       setStatus({ type: 'error', message: error.message })
     }
@@ -621,6 +713,27 @@ export function useAppData() {
     )
   ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 
+  async function handleForgotPasswordRequest(email) {
+    setStatus({ type: 'info', message: 'Requesting security protocol...' })
+    try {
+      await apiRequest('/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })
+      setStatus({ type: 'success', message: 'Security link dispatched to log.' })
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message || 'Protocol failure.' })
+    }
+  }
+
+  async function handleResetPassword(data) {
+    setStatus({ type: 'info', message: 'Verifying credentials...' })
+    try {
+      await apiRequest('/reset-password', { method: 'POST', body: JSON.stringify(data) })
+      setStatus({ type: 'success', message: 'Credentials updated. Please sign in.' })
+      setAuthMode('login')
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message || 'Update failed.' })
+    }
+  }
+
   return {
     token, currentUser, authMode, setAuthMode, users, conversations, documents, messages, activeView, setActiveView,
     adminUsers, loadAdminUsers, handleToggleAdmin, handleDeleteUser,
@@ -636,6 +749,7 @@ export function useAppData() {
     handleLogin, handleRegister, handleLogout, handleSendMessage, handleDocumentUpload, handleDeleteDocument, handleDownload, handleInspect,
     handleRefresh, handleGenerateReport,
     handleUpdateProfile, handleUpdatePassword,
+    handleForgotPasswordRequest, handleResetPassword,
     stats, recentActivity,
     startTransition
   }
