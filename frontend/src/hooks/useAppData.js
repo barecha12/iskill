@@ -8,7 +8,10 @@ export function useAppData() {
   const [authMode, setAuthMode] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('mode') === 'reset-password' && params.get('token')) return 'reset-password'
-    return params.get('auth') ?? 'login'
+    
+    const path = window.location.pathname.replace(/^\//, '')
+    const validAuthModes = ['login', 'register', 'forgot', 'terms', 'privacy']
+    return validAuthModes.includes(path) ? path : 'login'
   })
   const [currentUser, setCurrentUser] = useState(null)
   const [users, setUsers] = useState([])
@@ -16,32 +19,27 @@ export function useAppData() {
   const [documents, setDocuments] = useState([])
   const [messages, setMessages] = useState([])
   const [activeView, setActiveView] = useState(() => {
-    const params = new URLSearchParams(window.location.search)
-    return params.get('view') ?? window.localStorage.getItem('iskill_view') ?? 'dashboard'
+    const path = window.location.pathname.replace(/^\//, '')
+    const validViews = ['dashboard', 'chat', 'documents', 'people', 'admin', 'profile']
+    return validViews.includes(path) ? path : (window.localStorage.getItem('iskill_view') ?? 'dashboard')
   })
 
   // Sync state to URL and localStorage
   useEffect(() => {
-    const url = new URL(window.location.href)
+    const path = token ? `/${activeView}` : `/${authMode}`
+    const url = new URL(path, window.location.origin)
+    
+    // Preserve reset-password params if needed
+    if (authMode === 'reset-password') {
+      const params = new URLSearchParams(window.location.search)
+      url.search = params.toString()
+    }
+
     if (token) {
-      url.searchParams.set('view', activeView)
-      url.searchParams.delete('auth')
-      url.searchParams.delete('mode')
-      url.searchParams.delete('token')
-      url.searchParams.delete('email')
       window.localStorage.setItem('iskill_view', activeView)
-    } else {
-      if (authMode !== 'reset-password') {
-        url.searchParams.set('auth', authMode)
-        url.searchParams.delete('view')
-        url.searchParams.delete('mode')
-        url.searchParams.delete('token')
-        url.searchParams.delete('email')
-      }
-      // If it's reset-password, we let the URL params stay as they are
     }
     
-    if (window.location.search !== url.search) {
+    if (window.location.pathname !== url.pathname || (authMode !== 'reset-password' && window.location.search !== '')) {
       window.history.pushState({ view: activeView, auth: authMode }, '', url.href)
     }
   }, [activeView, authMode, token])
@@ -49,19 +47,18 @@ export function useAppData() {
   // Listen for back/forward buttons
   useEffect(() => {
     const handlePopState = (event) => {
+      const path = window.location.pathname.replace(/^\//, '')
       const params = new URLSearchParams(window.location.search)
+
       if (token) {
-        const view = params.get('view') || 'dashboard'
-        setActiveView(view)
+        const validViews = ['dashboard', 'chat', 'documents', 'people', 'admin', 'profile']
+        setActiveView(validViews.includes(path) ? path : 'dashboard')
       } else {
-        const mode = params.get('mode')
-        const auth = params.get('auth')
-        if (mode === 'reset-password') {
+        if (params.get('mode') === 'reset-password') {
           setAuthMode('reset-password')
-        } else if (auth === 'terms' || auth === 'privacy') {
-          setAuthMode(auth)
         } else {
-          setAuthMode(auth || 'login')
+          const validAuthModes = ['login', 'register', 'forgot', 'terms', 'privacy']
+          setAuthMode(validAuthModes.includes(path) ? path : 'login')
         }
       }
     }
