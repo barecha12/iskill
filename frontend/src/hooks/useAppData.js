@@ -54,11 +54,14 @@ export function useAppData() {
         const view = params.get('view') || 'dashboard'
         setActiveView(view)
       } else {
-        if (params.get('mode') === 'reset-password') {
+        const mode = params.get('mode')
+        const auth = params.get('auth')
+        if (mode === 'reset-password') {
           setAuthMode('reset-password')
-        } else {
-          const auth = params.get('auth') || 'login'
+        } else if (auth === 'terms' || auth === 'privacy') {
           setAuthMode(auth)
+        } else {
+          setAuthMode(auth || 'login')
         }
       }
     }

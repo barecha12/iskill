@@ -100,12 +100,23 @@
 /* Hide other containers when forgot/reset is active */
 .auth-container.mode-forgot .sign-in-container,
 .auth-container.mode-reset-password .sign-in-container,
+.auth-container.mode-terms .sign-in-container,
+.auth-container.mode-privacy .sign-in-container,
 .auth-container.mode-forgot .sign-up-container,
 .auth-container.mode-reset-password .sign-up-container,
+.auth-container.mode-terms .sign-up-container,
+.auth-container.mode-privacy .sign-up-container,
 .auth-container.mode-forgot .overlay-container,
-.auth-container.mode-reset-password .overlay-container {
+.auth-container.mode-reset-password .overlay-container,
+.auth-container.mode-terms .overlay-container,
+.auth-container.mode-privacy .overlay-container {
   opacity: 0;
   pointer-events: none;
+}
+
+.legal-container {
+  z-index: 5;
+  background: #0f172a;
 }
 
 .overlay-container {

@@ -3,6 +3,8 @@ import { LoginForm } from './LoginPage'
 import { RegisterForm } from './RegisterPage'
 import { ForgotForm } from './ForgotForm'
 import { ResetPasswordForm } from './ResetPasswordForm'
+import { TermsOfService } from './TermsOfService'
+import { PrivacyPolicy } from './PrivacyPolicy'
 
 export function AuthPage(props) {
   const isRightPanelActive = props.authMode === 'register'
@@ -57,6 +59,14 @@ export function AuthPage(props) {
             setAuthMode={props.setAuthMode}
             status={props.status}
           />
+        </div>
+
+        <div className={`auth-form-container legal-container ${props.authMode === 'terms' ? 'active' : ''}`}>
+          <TermsOfService setAuthMode={props.setAuthMode} />
+        </div>
+
+        <div className={`auth-form-container legal-container ${props.authMode === 'privacy' ? 'active' : ''}`}>
+          <PrivacyPolicy setAuthMode={props.setAuthMode} />
         </div>
         
         <div className="overlay-container">

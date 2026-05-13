@@ -288,7 +288,7 @@ export function RegisterForm({ registerForm, setRegisterForm, handleRegister, st
         </button>
 
         <p style={styles.terms}>
-          By signing up, you agree to our <a href="#" style={styles.termsLink}>Terms of Service</a> and <a href="#" style={styles.termsLink}>Privacy Policy</a>.
+          By signing up, you agree to our <a href="#" style={styles.termsLink} onClick={(e) => { e.preventDefault(); setAuthMode('terms'); }}>Terms of Service</a> and <a href="#" style={styles.termsLink} onClick={(e) => { e.preventDefault(); setAuthMode('privacy'); }}>Privacy Policy</a>.
         </p>
       </form>
 
